@@ -4,7 +4,7 @@ class StartScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("bg", "assets/start.png");
+        this.load.image("bgStart", "assets/start.png");
         this.load.spritesheet("pinkIdle", "assets/Idle.png", {
             frameWidth: 42,
             frameHeight: 42
@@ -30,7 +30,7 @@ class StartScene extends Phaser.Scene {
     }
 
     create() {
-        this.add.image(this.scale.width/2, this.scale.height/2, "bg");
+        this.add.image(this.scale.width/2, this.scale.height/2, "bgStart");
         this.add.text(this.scale.width/2-125, this.scale.height/2-100 , "Click to Play", {
             fill: 'black',
             fontSize: 36
@@ -83,7 +83,7 @@ class StartScene extends Phaser.Scene {
         
         this.input.on('pointerdown',() => {
             this.scene.stop("StartScene");
-            this.scene.start("EndScene");
+            this.scene.start("GameScene");
         })
     }
 }

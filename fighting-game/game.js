@@ -1,4 +1,6 @@
-const gameState = {};
+const gameState = {
+    isAttack: false
+};
 
 const config = {
     type: Phaser.AUTO,
@@ -11,7 +13,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 500 },
+            gravity: { y: 1000 },
             enableBody: true,
         }
     },
