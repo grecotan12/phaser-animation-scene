@@ -35,7 +35,7 @@ class StartScene extends Phaser.Scene {
             fill: 'black',
             fontSize: 36
         });
-        let text = this.add.text(this.scale.width/2-275, this.scale.height/2-200 , "Welcome To Fighting Survival", {
+        this.add.text(this.scale.width/2-275, this.scale.height/2-200 , "Welcome To Fighting Survival", {
             fontSize: 36
         });
 
@@ -70,7 +70,7 @@ class StartScene extends Phaser.Scene {
             delay: 0,
             frameRate: 10,
         });
-        const lancelot = this.add.sprite(this.scale.width/2, this.scale.height/2);
+        const lancelot = this.add.sprite(this.scale.width/2+50, this.scale.height/2+50);
         lancelot.setScale(5);
         lancelot.play("idle");
         setInterval(() => {
@@ -79,7 +79,7 @@ class StartScene extends Phaser.Scene {
                 lancelot.playAfterRepeat('walkAttack');
                 lancelot.chain([ 'walkAttack2', 'squatAttack', 'jumpAttack', 'idle' ]);
             }
-        }, 500);
+        }, 1000);
         
         this.input.on('pointerdown',() => {
             this.scene.stop("StartScene");
