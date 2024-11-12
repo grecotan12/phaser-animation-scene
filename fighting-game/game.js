@@ -1,5 +1,6 @@
 const gameState = {
-    isAttack: false
+    isAttack: false,
+    gameTime: 1000
 };
 
 const config = {

@@ -26,6 +26,11 @@ class GameScene extends Phaser.Scene {
             frameWidth: 42,
             frameHeight: 42
         });
+        this.load.spritesheet("squat", "assets/Squat.png", {
+            frameWidth: 42,
+            frameHeight: 42
+        });
+        
     }
 
     create() {
@@ -69,7 +74,10 @@ class GameScene extends Phaser.Scene {
         for (let i = 1; i <= 8; i++) {
             platforms.create((this.scale.width/2+300) + (i * 32), this.scale.height-600, "titleOne").setOrigin(0, 0).refreshBody();
         }
-        
+        gameState.timeText = this.add.text(500, 500, gameState.gameTime, {
+            fill: "black",
+            fontSize: 36
+        });
         gameState.player = this.physics.add.sprite(50, this.scale.height-100, "pinkIdle").setScale(2);
         gameState.player.setCollideWorldBounds(true);
         gameState.enemy = this.physics.add.sprite(500, this.scale.height-100, "pinkIdle1").setScale(2);
@@ -112,14 +120,27 @@ class GameScene extends Phaser.Scene {
             frameRate: 10,
             repeat: -1,
         });
+        this.anims.create({
+            key: "squat",
+            frames: this.anims.generateFrameNames("squat", {start: 0, end: 3}),
+            delay: 0,
+            frameRate: 10,
+            repeat: -1,
+        });
 
         gameState.player.anims.play("idle", true);
 
         gameState.cursors = this.input.keyboard.createCursorKeys();
         gameState.qKey = this.input.keyboard.addKey('Q');
+
     }
 
     update() {
+        if (gameState.gameTime < 0) {
+            this.physics.stop();
+        } else {
+            gameState.timeText.setText(gameState.gameTime--);
+        }
         if (gameState.cursors.right.isDown) {
             gameState.player.setVelocityX(150);
             if (gameState.qKey.isDown) {
@@ -144,7 +165,9 @@ class GameScene extends Phaser.Scene {
         else if (gameState.qKey.isDown) {
             gameState.isAttack = true;
             gameState.player.anims.play("attack", true);
-        } 
+        } else if (gameState.cursors.down.isDown) {
+            gameState.player.anims.play("squat", true);
+        }
         else {
             gameState.player.setVelocityX(0);
             gameState.isAttack = false;
