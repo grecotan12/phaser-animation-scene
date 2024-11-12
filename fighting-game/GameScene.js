@@ -22,6 +22,10 @@ class GameScene extends Phaser.Scene {
             frameWidth: 42,
             frameHeight: 42
         });
+        this.load.spritesheet("jump", "assets/Jump.png", {
+            frameWidth: 42,
+            frameHeight: 42
+        });
     }
 
     create() {
@@ -31,10 +35,44 @@ class GameScene extends Phaser.Scene {
         for (let i = 1; i <= 40; i++) {
             platforms.create(i * 32, this.scale.height-32, "titleOne").setOrigin(0, 0).refreshBody();
         }
+
+        platforms.create(1, this.scale.height-200, "titleOne").setOrigin(0, 0).refreshBody();
+        for (let i = 1; i <= 10; i++) {
+            platforms.create(i * 32, this.scale.height-200, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            platforms.create((this.scale.width/2-150) + (i * 32), this.scale.height-200, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+        for (let i = 1; i <= 8; i++) {
+            platforms.create((this.scale.width/2+150) + (i * 32), this.scale.height-200, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+
+        for (let i = 1; i <= 8; i++) {
+            platforms.create((this.scale.width/2-400) + (i * 32), this.scale.height-400, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            platforms.create((this.scale.width/2+100) + (i * 32), this.scale.height-400, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+        for (let i = 1; i <= 8; i++) {
+            platforms.create((this.scale.width/-400) + (i * 32), this.scale.height-600, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            platforms.create((this.scale.width/2-100) + (i * 32), this.scale.height-600, "titleOne").setOrigin(0, 0).refreshBody();
+        }
+
+        for (let i = 1; i <= 8; i++) {
+            platforms.create((this.scale.width/2+300) + (i * 32), this.scale.height-600, "titleOne").setOrigin(0, 0).refreshBody();
+        }
         
-        gameState.player = this.physics.add.sprite(50, this.scale.height-100, "pinkIdle").setScale(2).refreshBody();
+        gameState.player = this.physics.add.sprite(50, this.scale.height-100, "pinkIdle").setScale(2);
         gameState.player.setCollideWorldBounds(true);
-        gameState.enemy = this.physics.add.sprite(500, this.scale.height-100, "pinkIdle1").setScale(2).refreshBody();
+        gameState.enemy = this.physics.add.sprite(500, this.scale.height-100, "pinkIdle1").setScale(2);
         gameState.enemy.flipX = true;
 
         this.physics.add.collider(gameState.player, platforms);
@@ -67,16 +105,24 @@ class GameScene extends Phaser.Scene {
             frameRate: 50,
             repeat: -1,
         });
+        this.anims.create({
+            key: "jump",
+            frames: this.anims.generateFrameNames("jump", {start: 0, end: 7}),
+            delay: 0,
+            frameRate: 10,
+            repeat: -1,
+        });
 
         gameState.player.anims.play("idle", true);
 
         gameState.cursors = this.input.keyboard.createCursorKeys();
+        gameState.qKey = this.input.keyboard.addKey('Q');
     }
 
     update() {
         if (gameState.cursors.right.isDown) {
-            gameState.player.setVelocityX(100);
-            if (gameState.cursors.space.isDown) {
+            gameState.player.setVelocityX(150);
+            if (gameState.qKey.isDown) {
                 gameState.player.anims.play("attack", true);
                 gameState.isAttack = true;
             } else {
@@ -85,8 +131,8 @@ class GameScene extends Phaser.Scene {
             }
             gameState.player.flipX = false;
         } else if (gameState.cursors.left.isDown) {
-            gameState.player.setVelocityX(-100);
-            if (gameState.cursors.space.isDown) {
+            gameState.player.setVelocityX(-150);
+            if (gameState.qKey.isDown) {
                 gameState.isAttack = true;
                 gameState.player.anims.play("attack", true);
             } else {
@@ -95,15 +141,22 @@ class GameScene extends Phaser.Scene {
             }
             gameState.player.flipX = true;
         } 
-        else if (gameState.cursors.space.isDown) {
+        else if (gameState.qKey.isDown) {
             gameState.isAttack = true;
             gameState.player.anims.play("attack", true);
         } 
         else {
-            gameState.player.setVelocity(0);
+            gameState.player.setVelocityX(0);
             gameState.isAttack = false;
             gameState.player.anims.play("idle", true);
         }
+        if ((gameState.cursors.space.isDown || gameState.cursors.up.isDown) && gameState.player.body.touching.down) {
+            gameState.player.anims.play('jump', true);
+            gameState.player.setVelocityY(-800);
+        }
+
+
+
         
     }
 }

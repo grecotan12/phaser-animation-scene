@@ -132,8 +132,8 @@ class GameScene extends Phaser.Scene {
       }
 
       if ((gameState.cursors.space.isDown || gameState.cursors.up.isDown) && gameState.player.body.touching.down) {
-        gameState.player.anims.play('jump', true);
         gameState.player.setVelocityY(-800);
+        gameState.player.anims.play('jump', true);
       }
     }
   }
