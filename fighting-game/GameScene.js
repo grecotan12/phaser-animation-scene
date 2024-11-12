@@ -6,10 +6,6 @@ class GameScene extends Phaser.Scene {
     preload() {
         this.load.image("bgGame", "assets/game.png");
         this.load.image("titleOne", "assets/Tile_01.png");
-        this.load.spritesheet("pinkIdle1", "assets/Idle.png", {
-            frameWidth: 42,
-            frameHeight: 42
-        });
         this.load.spritesheet("pinkIdle", "assets/Idle.png", {
             frameWidth: 42,
             frameHeight: 42
@@ -30,7 +26,14 @@ class GameScene extends Phaser.Scene {
             frameWidth: 42,
             frameHeight: 42
         });
-        
+        this.load.spritesheet("squat", "assets/Squat.png", {
+            frameWidth: 42,
+            frameHeight: 42
+        });
+        this.load.spritesheet("enemyIdle", "assets/EnemyIdle.png", {
+            frameWidth: 48,
+            frameHeight: 48
+        });
     }
 
     create() {
@@ -74,13 +77,15 @@ class GameScene extends Phaser.Scene {
         for (let i = 1; i <= 8; i++) {
             platforms.create((this.scale.width/2+300) + (i * 32), this.scale.height-600, "titleOne").setOrigin(0, 0).refreshBody();
         }
-        gameState.timeText = this.add.text(500, 500, gameState.gameTime, {
+        gameState.timeText = this.add.text(this.scale.width/2-50, 10, gameState.gameTime, {
             fill: "black",
             fontSize: 36
         });
         gameState.player = this.physics.add.sprite(50, this.scale.height-100, "pinkIdle").setScale(2);
         gameState.player.setCollideWorldBounds(true);
-        gameState.enemy = this.physics.add.sprite(500, this.scale.height-100, "pinkIdle1").setScale(2);
+        
+        gameState.enemy = this.physics.add.sprite(500, this.scale.height-100, "enemyIdle").setScale(2);
+        gameState.enemy.setCollideWorldBounds(true);
         gameState.enemy.flipX = true;
 
         this.physics.add.collider(gameState.player, platforms);
@@ -127,20 +132,27 @@ class GameScene extends Phaser.Scene {
             frameRate: 10,
             repeat: -1,
         });
+        this.anims.create({
+            key: "enemyIdle",
+            frames: this.anims.generateFrameNames("enemyIdle", {start: 0, end: 3}),
+            delay: 0,
+            frameRate: 10,
+            repeat: -1,
+        });
 
         gameState.player.anims.play("idle", true);
-
+        gameState.enemy.anims.play("enemyIdle", true);
         gameState.cursors = this.input.keyboard.createCursorKeys();
         gameState.qKey = this.input.keyboard.addKey('Q');
 
     }
 
     update() {
-        if (gameState.gameTime < 0) {
-            this.physics.stop();
-        } else {
-            gameState.timeText.setText(gameState.gameTime--);
-        }
+        // if (gameState.gameTime < 0) {
+        //     this.physics.stop();
+        // } else {
+        //     gameState.timeText.setText(gameState.gameTime--);
+        // }
         if (gameState.cursors.right.isDown) {
             gameState.player.setVelocityX(150);
             if (gameState.qKey.isDown) {
