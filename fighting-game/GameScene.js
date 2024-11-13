@@ -178,6 +178,11 @@ class GameScene extends Phaser.Scene {
                 gameState.score+=10;
                 gameState.scoreText.setText(gameState.score);
                 if (gameState.enemiesCount === 0) {
+                    if (gameState.score > 300) {
+                        gameState.isWon = true;
+                        this.scene.stop("GameScene");
+                        this.scene.start("EndScene");
+                    }
                     if (gameState.score >= 30) {
                         if (gameState.score >= 100) {
                             if (gameState.score >= 200) {
@@ -190,7 +195,7 @@ class GameScene extends Phaser.Scene {
                         else {
                             gameState.enemiesCount = 10;
                         }
-                    } 
+                } 
                     
                     for (let i = 0;  i < gameState.enemiesCount; i++) {
                         const x = Math.floor(Math.random() * (this.scale.width - 100 + 1) ) + 100;
@@ -217,6 +222,7 @@ class GameScene extends Phaser.Scene {
                 gameState.hpText.setText(`HP: ${gameState.hp}`);
                 gameState.isHurt = true;
                 if (gameState.hp === 0) {
+                    gameState.isWon = false;
                     this.scene.stop("GameScene");
                     this.scene.start("EndScene");
                 }
@@ -224,6 +230,11 @@ class GameScene extends Phaser.Scene {
                     gameState.isHurt = false;
                 }, 500);
                 if (gameState.enemiesCount === 0) {
+                    if (gameState.score > 300) {
+                        gameState.isWon = true;
+                        this.scene.stop("GameScene");
+                        this.scene.start("EndScene");
+                    }
                     if (gameState.score >= 30) {
                         if (gameState.score >= 100) {
                             if (gameState.score >= 200) {
