@@ -83,17 +83,20 @@ class GameScene extends Phaser.Scene {
         });
         gameState.player = this.physics.add.sprite(50, this.scale.height-100, "pinkIdle").setScale(2);
         gameState.player.setCollideWorldBounds(true);
+
+        gameState.enemies = this.physics.add.group();
+        for (let i = 0;  i < 5; i++) {
+            const x = Math.floor(Math.random() * (this.scale.width - 100 + 1) ) + 100;
+            const y = (Math.random() * this.scale.height-100);
+            gameState.enemies.create(x, y , "enemyIdle").setScale(2);
+        }
         
-        gameState.enemy = this.physics.add.sprite(500, this.scale.height-100, "enemyIdle").setScale(2);
-        gameState.enemy.setCollideWorldBounds(true);
-        gameState.enemy.flipX = true;
-
         this.physics.add.collider(gameState.player, platforms);
-        this.physics.add.collider(gameState.enemy, platforms);
+        this.physics.add.collider(gameState.enemies, platforms);
 
-        this.physics.add.collider(gameState.player, gameState.enemy, () => {
+        this.physics.add.collider(gameState.player, gameState.enemies, (player, enemy) => {
             if (gameState.isAttack) {
-                gameState.enemy.destroy();
+                enemy.destroy();
             }
         })
         
@@ -140,8 +143,20 @@ class GameScene extends Phaser.Scene {
             repeat: -1,
         });
 
+        
         gameState.player.anims.play("idle", true);
-        gameState.enemy.anims.play("enemyIdle", true);
+        Phaser.Actions.Call(gameState.enemies.getChildren(), child => {
+            child.anims.play('enemyIdle');
+            this.tweens.add({
+                targets: child,
+                x: child.x - 150,
+                ease: 'Linear',
+                duration: 1800, 
+                repeat: -1,
+                yoyo: true,
+            });
+        });
+        
         gameState.cursors = this.input.keyboard.createCursorKeys();
         gameState.qKey = this.input.keyboard.addKey('Q');
 
