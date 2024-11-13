@@ -1,6 +1,6 @@
 class GameScene extends Phaser.Scene {
     constructor() {
-        super({key: 'GameScene'})
+        super({key: 'GameScene'});
     }
 
     preload() {
@@ -27,6 +27,10 @@ class GameScene extends Phaser.Scene {
             frameHeight: 42
         });
         this.load.spritesheet("squat", "assets/Squat.png", {
+            frameWidth: 42,
+            frameHeight: 42
+        });
+        this.load.spritesheet("hurt", "assets/Hurt.png", {
             frameWidth: 42,
             frameHeight: 42
         });
@@ -77,12 +81,17 @@ class GameScene extends Phaser.Scene {
         for (let i = 1; i <= 8; i++) {
             platforms.create((this.scale.width/2+300) + (i * 32), this.scale.height-600, "titleOne").setOrigin(0, 0).refreshBody();
         }
-        gameState.timeText = this.add.text(this.scale.width/2-50, 10, gameState.gameTime, {
+        gameState.scoreText = this.add.text(this.scale.width/2-50, 10, gameState.score, {
             fill: "black",
             fontSize: 36
         });
+
         gameState.player = this.physics.add.sprite(50, this.scale.height-100, "pinkIdle").setScale(2);
         gameState.player.setCollideWorldBounds(true);
+        gameState.hpText = this.add.text(10, 10, `HP: ${gameState.hp}`,  {
+            fill: "red",
+            fontSize: 24
+        });
 
         gameState.enemies = this.physics.add.group();
         for (let i = 0;  i < 5; i++) {
@@ -94,11 +103,6 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(gameState.player, platforms);
         this.physics.add.collider(gameState.enemies, platforms);
 
-        this.physics.add.collider(gameState.player, gameState.enemies, (player, enemy) => {
-            if (gameState.isAttack) {
-                enemy.destroy();
-            }
-        })
         
         this.anims.create({
             key: "idle",
@@ -142,11 +146,18 @@ class GameScene extends Phaser.Scene {
             frameRate: 10,
             repeat: -1,
         });
-
+        this.anims.create({
+            key: "hurt",
+            frames: this.anims.generateFrameNames("hurt", {start: 0, end: 3}),
+            delay: 0,
+            frameRate: 5,
+            repeat: -1,
+        });
         
-        gameState.player.anims.play("idle", true);
+        
         Phaser.Actions.Call(gameState.enemies.getChildren(), child => {
             child.anims.play('enemyIdle');
+            child.setCollideWorldBounds(true);
             this.tweens.add({
                 targets: child,
                 x: child.x - 150,
@@ -160,14 +171,99 @@ class GameScene extends Phaser.Scene {
         gameState.cursors = this.input.keyboard.createCursorKeys();
         gameState.qKey = this.input.keyboard.addKey('Q');
 
+        this.physics.add.collider(gameState.player, gameState.enemies, (player, enemy) => {
+            if (gameState.isAttack) {
+                enemy.destroy();
+                gameState.enemiesCount -= 1;
+                gameState.score+=10;
+                gameState.scoreText.setText(gameState.score);
+                if (gameState.enemiesCount === 0) {
+                    if (gameState.score >= 30) {
+                        if (gameState.score >= 100) {
+                            if (gameState.score >= 200) {
+                                gameState.enemiesCount = 20;
+                            }
+                            else {
+                                gameState.enemiesCount = 15;
+                            }
+                        } 
+                        else {
+                            gameState.enemiesCount = 10;
+                        }
+                    } 
+                    
+                    for (let i = 0;  i < gameState.enemiesCount; i++) {
+                        const x = Math.floor(Math.random() * (this.scale.width - 100 + 1) ) + 100;
+                        const y = (Math.random() * this.scale.height-100);
+                        gameState.enemies.create(x, y , "enemyIdle").setScale(2);
+                    }
+                    Phaser.Actions.Call(gameState.enemies.getChildren(), child => {
+                        child.anims.play('enemyIdle');
+                        child.setCollideWorldBounds(true);
+                        this.tweens.add({
+                            targets: child,
+                            x: child.x - 150,
+                            ease: 'Linear',
+                            duration: 1800, 
+                            repeat: -1,
+                            yoyo: true,
+                        });
+                    });
+                }
+            } else {
+                enemy.destroy();
+                gameState.hp -= 1;
+                gameState.enemiesCount -= 1;
+                gameState.hpText.setText(`HP: ${gameState.hp}`);
+                gameState.isHurt = true;
+                if (gameState.hp === 0) {
+                    this.scene.stop("GameScene");
+                    this.scene.start("EndScene");
+                }
+                setTimeout(() => {
+                    gameState.isHurt = false;
+                }, 500);
+                if (gameState.enemiesCount === 0) {
+                    if (gameState.score >= 30) {
+                        if (gameState.score >= 100) {
+                            if (gameState.score >= 200) {
+                                gameState.enemiesCount = 20;
+                            }
+                            else {
+                                gameState.enemiesCount = 15;
+                            }
+                        } 
+                        else {
+                            gameState.enemiesCount = 10;
+                        }
+                    } 
+                    for (let i = 0;  i < 10; i++) {
+                        const x = Math.floor(Math.random() * (this.scale.width - 100 + 1) ) + 100;
+                        const y = (Math.random() * this.scale.height-100);
+                        gameState.enemies.create(x, y , "enemyIdle").setScale(2);
+                    }
+                    Phaser.Actions.Call(gameState.enemies.getChildren(), child => {
+                        child.anims.play('enemyIdle');
+                        child.setCollideWorldBounds(true);
+                        this.tweens.add({
+                            targets: child,
+                            x: child.x - 150,
+                            ease: 'Linear',
+                            duration: 1800, 
+                            repeat: -1,
+                            yoyo: true,
+                        });
+                    });
+                }
+            }
+        });
+
+        
     }
 
     update() {
-        // if (gameState.gameTime < 0) {
-        //     this.physics.stop();
-        // } else {
-        //     gameState.timeText.setText(gameState.gameTime--);
-        // }
+        gameState.hpText.x = gameState.player.body.position.x;
+        gameState.hpText.y = gameState.player.body.position.y;
         if (gameState.cursors.right.isDown) {
             gameState.player.setVelocityX(150);
             if (gameState.qKey.isDown) {
@@ -175,7 +271,11 @@ class GameScene extends Phaser.Scene {
                 gameState.isAttack = true;
             } else {
                 gameState.isAttack = false;
-                gameState.player.anims.play("run", true);
+                if (gameState.isHurt) {
+                    gameState.player.anims.play("hurt", true);
+                } else {
+                    gameState.player.anims.play("run", true);
+                }
             }
             gameState.player.flipX = false;
         } else if (gameState.cursors.left.isDown) {
@@ -185,7 +285,11 @@ class GameScene extends Phaser.Scene {
                 gameState.player.anims.play("attack", true);
             } else {
                 gameState.isAttack = false;
-                gameState.player.anims.play("run", true);
+                if (gameState.isHurt) {
+                    gameState.player.anims.play("hurt", true);
+                } else {
+                    gameState.player.anims.play("run", true);
+                }
             }
             gameState.player.flipX = true;
         } 
@@ -195,18 +299,22 @@ class GameScene extends Phaser.Scene {
         } else if (gameState.cursors.down.isDown) {
             gameState.player.anims.play("squat", true);
         }
+        else if (gameState.isHurt) {
+            gameState.player.anims.play("hurt", true);
+        }
         else {
             gameState.player.setVelocityX(0);
             gameState.isAttack = false;
             gameState.player.anims.play("idle", true);
         }
         if ((gameState.cursors.space.isDown || gameState.cursors.up.isDown) && gameState.player.body.touching.down) {
-            gameState.player.anims.play('jump', true);
             gameState.player.setVelocityY(-800);
+            gameState.isAttack = false;
+            if (gameState.isHurt) {
+                gameState.player.anims.play("hurt", true);
+            } else {
+                gameState.player.anims.play('jump', true);
+            }
         }
-
-
-
-        
     }
 }

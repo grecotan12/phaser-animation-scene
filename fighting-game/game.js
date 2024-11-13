@@ -1,6 +1,8 @@
 const gameState = {
-    isAttack: false,
-    gameTime: 1000
+    score: 0,
+    hp: 10,
+    enemiesCount: 5,
+    
 };
 
 const config = {
@@ -16,7 +18,6 @@ const config = {
         arcade: {
             gravity: { y: 1500 },
             enableBody: true,
-            debug: true
         }
     },
     scene: [StartScene, GameScene, EndScene]
